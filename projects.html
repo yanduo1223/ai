@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络请求练习</title>
+    <style>
+        * {box-sizing: border-box;margin:0;padding:0;font-family: system-ui;}
+        body {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+        nav {
+            display:flex;
+            gap:24px;
+            padding:14px 0;
+            margin-bottom:24px;
+            border-bottom:1px solid #ddd;
+        }
+        nav a {
+            color:#333;
+            text-decoration:none;
+            font-size:18px;
+        }
+        nav a.active {
+            color:#1677ff;
+            font-weight:bold;
+        }
+        h2 {
+            margin: 24px 0 8px;
+            font-size: 22px;
+        }
+        h3 {
+            margin: 28px 0 16px;
+            font-size: 18px;
+        }
+        p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        button {
+            padding:10px 18px;
+            border:none;
+            border-radius:6px;
+            background:#1677ff;
+            color:#fff;
+            cursor:pointer;
+            margin: 6px 8px 6px 0;
+            font-size: 14px;
+        }
+        input {
+            padding:10px 12px;
+            width:320px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        .item {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin:12px 0;
+            padding: 12px 16px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .del-btn {background:#dd4444;}
+        .edit-btn {background:#28a745;}
+        .warn {color:red;}
+        .row {
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">首页</a>
+        <a href="projects.html" class="active">网络请求练习</a>
+        <a href="chat.html">AI待办助手</a>
+    </nav>
+
+    <h2>网络请求练习</h2>
+    <p>点击按钮，测试一次不存在的文件请求。</p>
+
+    <div class="row">
+        <button onclick="test404()">测试404请求</button>
+    </div>
+    <p id="tip404"></p>
+
+    <h3>增删查改列表</h3>
+
+    <div class="row">
+        <input id="inputText" placeholder="输入内容，自定义条目">
+        <button onclick="addItem()">新增一条</button>
+        <button onclick="getList()">查询/重试</button>
+    </div>
+
+    <p id="listTip" class="warn"></p>
+    <div id="listBox"></div>
+
+    <div class="row" style="margin-top:24px;">
+        <button onclick="location.href='chat.html'">前往AI待办助手</button>
+    </div>
+
+<script>
+function test404(){
+    fetch('/not-exist-file.html').then(r=>{
+        if(!r.ok){
+            document.getElementById('tip404').innerText = `请求失败：状态码 ${r.status}`
+        }
+    })
+}
+
+function getList(){
+    fetch('/api/get')
+    .then(res=>res.json())
+    .then(ret=>{
+        renderList(ret.data)
+        document.getElementById('listTip').innerText = ""
+    })
+    .catch(err=>{
+        document.getElementById('listTip').innerText = "请求失败："+err.message
+    })
+}
+
+function addItem(){
+    const val = document.getElementById('inputText').value.trim()
+    if(!val) return
+    fetch('/api/add',{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({text:val})
+    })
+    .then(res=>res.json())
+    .then(ret=>{
+        if(ret.code === -1){
+            document.getElementById('listTip').innerText = ret.msg
+        }else if(ret.code === 1){
+            renderList(ret.data)
+            document.getElementById('inputText').value = ""
+            document.getElementById('listTip').innerText = ""
+        }else{
+            document.getElementById('listTip').innerText = ret.msg
+        }
+    })
+    .catch(err=>{
+        document.getElementById('listTip').innerText = "请求失败："+err.message
+    })
+}
+
+function delItem(id){
+    fetch('/api/del',{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id})
+    })
+    .then(res=>res.json())
+    .then(ret=>{
+        renderList(ret.data)
+    })
+}
+
+function editItem(id, oldText){
+    const newText = prompt("修改内容", oldText)
+    if(newText === null || newText.trim() === "") return
+    fetch('/api/edit',{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id, text:newText.trim()})
+    })
+    .then(res=>res.json())
+    .then(ret=>{
+        if(ret.code === -1){
+            document.getElementById('listTip').innerText = ret.msg
+        }else{
+            renderList(ret.data)
+            document.getElementById('listTip').innerText = ""
+        }
+    })
+}
+
+function renderList(arr){
+    const box = document.getElementById('listBox')
+    box.innerHTML = ""
+    arr.forEach(item=>{
+        const div = document.createElement('div')
+        div.className = "item"
+        div.innerHTML = `
+            <span>${item.text}</span>
+            <button class="edit-btn" onclick="editItem(${item.id}, '${item.text}')">修改</button>
+            <button class="del-btn" onclick="delItem(${item.id})">删除</button>
+        `
+        box.appendChild(div)
+    })
+}
+</script>
+</body>
+</html>

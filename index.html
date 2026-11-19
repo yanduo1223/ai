@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>史同学的个人主页</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif;}
+        body{background:#f4f7fa;color:#333;}
+        nav{display:flex;justify-content:flex-end;padding:20px 40px;gap:30px;}
+        nav a{color:#333;text-decoration:none;font-size:16px;}
+        nav a.active{color:#216ce7;font-weight:bold;}
+        .container{max-width:900px;margin:0 auto;padding:20px;}
+        .welcome-card{background:#fff;padding:40px;border-radius:14px;text-align:center;box-shadow:0 2px 12px #00000010;margin-bottom:30px;}
+        .welcome-card h4{color:#216ce7;letter-spacing:2px;margin-bottom:10px;}
+        .welcome-card h1{font-size:32px;color:#216ce7;margin:10px 0;}
+        .welcome-card h2{font-size:22px;margin-bottom:20px;}
+        .welcome-card p{max-width:600px;margin:10px auto;font-size:15px;color:#555;line-height:1.6;}
+        .btn{display:inline-block;margin-top:20px;padding:10px 22px;background:#216ce7;color:#fff;border-radius:8px;text-decoration:none;}
+        .section{margin:40px 0;}
+        .section h3{font-size:20px;margin-bottom:16px;}
+        .info-card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 2px 12px #00000010;}
+        .info-item{margin:12px 0;}
+        .info-item label{font-weight:bold;color:#333;}
+        .skill-wrap,.project-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+        .skill-card,.pro-card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 12px #00000010;}
+        .skill-card h4,.pro-card h4{margin-bottom:8px;color:#216ce7;}
+        .pro-card a{color:#216ce7;text-decoration:none;}
+        .hide{display:none;}
+    </style>
+</head>
+<body>
+    <style>
+.top-nav{
+    background:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    padding:14px 40px;
+    display:flex;
+    gap:36px;
+}
+.top-nav a{
+    text-decoration:none;
+    color:#333;
+    font-size:16px;
+}
+.top-nav a:hover{
+    color:#216ce7;
+}
+.top-nav a.active{
+    color:#216ce7;
+    font-weight:bold;
+}
+</style>
+<nav class="top-nav">
+    <a href="/" class="active">首页</a>
+    <a href="/projects.html">网络请求练习</a>
+    <a href="/chat.html">AI待办助手</a>
+</nav>
+
+    <nav>
+        <a href="#" class="tab active" data-target="intro">个人介绍</a>
+        <a href="#" class="tab" data-target="skill">技能与项目</a>
+    </nav>
+    <div class="container">
+        <!-- 个人介绍页面 -->
+        <div id="intro" class="page">
+            <div class="welcome-card">
+                <h4>WELCOME TO MY WEBSITE</h4>
+                <h1>你好，我是史同学</h1>
+                <h2>一名正在学习编程的学生</h2>
+                <p>我目前正在学习计算机基础知识，对编程和网页开发有浓厚的兴趣。希望通过不断练习，提高自己的编程能力。</p>
+                <p>我的学习目标是掌握 Java、Python、C++ 和 C 语言，并独立完成自己的小型项目。</p>
+                <a href="#" class="btn tab" data-target="skill">查看我的技能与项目 →</a>
+            </div>
+            <div class="section">
+                <h3>关于我</h3>
+                <div class="info-card">
+                    <div class="info-item"><label>个人身份：</label>计算机专业学生</div>
+                    <div class="info-item"><label>学习方向：</label>网页开发、编程</div>
+                    <div class="info-item"><label>个人目标：</label>独立完成编程项目</div>
+                    <div class="info-item"><label>个人爱好：</label>学习新知识、动手实践</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技能&项目页面 -->
+        <div id="skill" class="page hide">
+            <div class="section">
+                <h3>技能栈</h3>
+                <div class="skill-wrap">
+                    <div class="skill-card">
+                        <h4>前端开发</h4>
+                        <p>HTML、CSS、JavaScript</p>
+                    </div>
+                    <div class="skill-card">
+                        <h4>后端开发</h4>
+                        <p>Node.js、Express</p>
+                    </div>
+                    <div class="skill-card">
+                        <h4>编程语言</h4>
+                        <p>C、Java、Python、C++</p>
+                    </div>
+                    <div class="skill-card">
+                        <h4>工具</h4>
+                        <p>Git、VSCode、IDEA</p>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <h3>我的项目</h3>
+                <div class="project-wrap">
+                    <div class="pro-card">
+                        <h4>网络请求练习</h4>
+                        <p>实现增删改查、404测试，Express后端接口</p>
+                        <a href="./projects.html">前往查看</a>
+                    </div>
+                    <div class="pro-card">
+                        <h4>AI待办助手</h4>
+                        <p>SSE流式大模型对话，计算机设计大赛作品</p>
+                        <a href="./chat.html">前往查看</a>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:30px;">
+                <a href="#" class="btn tab" data-target="intro">返回个人介绍</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab')
+        const pages = document.querySelectorAll('.page')
+        tabs.forEach(tab=>{
+            tab.onclick = function(e){
+                e.preventDefault()
+                const targetId = this.dataset.target
+                pages.forEach(p=>p.classList.add('hide'))
+                document.getElementById(targetId).classList.remove('hide')
+                tabs.forEach(t=>t.classList.remove('active'))
+                document.querySelectorAll(`[data-target="${targetId}"]`).forEach(t=>t.classList.add('active'))
+            }
+        })
+    </script>
+</body>
+</html>
