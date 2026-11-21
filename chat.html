@@ -2,150 +2,148 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>任务5 工具调用-待办助手</title>
-    <style>
-        * {box-sizing: border-box;margin:0;padding:0;font-family: system-ui;}
-        body {max-width: 900px;margin: 12px auto;padding:0 12px;}
-        nav {
-            display:flex;
-            gap:20px;
-            padding:10px 0;
-            margin-bottom:12px;
-            border-bottom:1px solid #ddd;
-        }
-        nav a {
-            color:#333;
-            text-decoration:none;
-            font-size:18px;
-        }
-        nav a.active {
-            color:#1677ff;
-            font-weight:bold;
-        }
-        .log-box {border:1px solid #ccc;padding:8px;margin-bottom:10px;height:80px;overflow:auto;background:#f8f8f8;}
-        .chat-container {margin-bottom:16px;}
-        .msg {margin:8px 0;padding:10px;border-radius:8px;white-space: pre-wrap;}
-        .user {background:#1677ff;color:#fff;text-align:right;}
-        .ai {background:#f0f0f0;color:#222;}
-        .input-area {display:flex;gap:8px;margin-top:10px;}
-        textarea {flex:1;padding:10px;border:1px solid #ccc;border-radius:6px;resize:none;height:60px;}
-        button {padding:8px 16px;border:none;border-radius:6px;background:#1677ff;color:#fff;cursor:pointer;}
-        button#stop {background:#888;}
-    </style>
+  <meta charset="UTF-8">
+  <title>AI待办助手</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #ffffff 0%, #eaf4ff 100%);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(22, 119, 255, 0.1);
+    }
+    nav {
+      margin-bottom: 30px;
+    }
+    nav a {
+      margin-right: 12px;
+      text-decoration: none;
+      color: #1677ff;
+      font-size: 14px;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .log-box {
+      width: 100%;
+      height: 80px;
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom:12px;
+      border-radius:6px;
+    }
+    .chat-area{
+      margin-bottom:20px;
+    }
+    .msg-item{
+      padding:10px;
+      background:#f5faff;
+      margin:8px 0;
+      border-radius:8px;
+    }
+    .input-wrap{
+      display:flex;
+      gap:8px;
+    }
+    #chatInput{
+      flex-grow:1;
+      padding:10px;
+      border:1px solid #91caff;
+      border-radius:6px;
+      font-size:14px;
+    }
+    .blue-btn{
+      background:#1677ff;
+      color:white;
+      border:none;
+      padding:10px 18px;
+      border-radius:6px;
+      cursor:pointer;
+    }
+    .gray-btn{
+      background:#888;
+      color:white;
+      border:none;
+      padding:10px 18px;
+      border-radius:6px;
+      cursor:pointer;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <nav>
-        <a href="index.html">首页</a>
-        <a href="projects.html">网络请求练习</a>
-        <a href="chat.html" class="active">AI待办助手</a>
+      <a href="index.html">首页</a>
+      <a href="projects.html">网络请求练习</a>
+      <a href="chat.html">AI待办助手</a>
     </nav>
 
-    <div class="log-box" id="toolLog">工具调用日志</div>
-    <div class="chat-container" id="chatBox"></div>
-    <div class="input-area">
-        <textarea id="inputBox" placeholder="对我说：帮我加一条明天交实验报告 / 查询我的待办 / 删除第1条待办"></textarea>
-        <button id="sendBtn">发送</button>
-        <button id="stop">停止生成</button>
+    <div class="log-box" id="toolLog">工具调用日志：</div>
+    <div class="chat-area" id="chatBox"></div>
+
+    <div class="input-wrap">
+      <input id="chatInput" placeholder="对我说：帮我加一条明天交实验报告 / 查询我的待办 / 删除第1条待办">
+      <button class="blue-btn" id="sendBtn">发送</button>
+      <button class="gray-btn" id="stopBtn">停止生成</button>
     </div>
+  </div>
 
-<script>
-const chatBox = document.getElementById('chatBox');
-const inputBox = document.getElementById('inputBox');
-const sendBtn = document.getElementById('sendBtn');
-const stopBtn = document.getElementById('stop');
-const toolLog = document.getElementById('toolLog');
-let eventSource = null;
+  <script>
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const chatBox = document.getElementById('chatBox');
+    const toolLog = document.getElementById('toolLog');
+    let eventSource = null;
 
-function getTodoList(){
-    const raw = localStorage.getItem("todos");
-    return raw ? JSON.parse(raw) : [];
-}
-function saveTodoList(list){
-    localStorage.setItem("todos", JSON.stringify(list));
-}
-function addTodo(text){
-    const arr = getTodoList();
-    arr.push({id:Date.now(), content:text});
-    saveTodoList(arr);
-    return arr;
-}
-function delTodo(index){
-    const arr = getTodoList();
-    if(arr[index]) arr.splice(index,1);
-    saveTodoList(arr);
-    return arr;
-}
-function showLog(txt){
-    toolLog.innerText = "工具调用日志：" + txt;
-}
-function addMsg(text, isUser=false){
-    const div = document.createElement('div');
-    div.className = "msg " + (isUser?"user":"ai");
-    div.innerText = text;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    return div;
-}
+    sendBtn.onclick = function () {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = '';
+      toolLog.innerText = '工具调用日志：触发本地工具：查询待办';
+      addMsg(text, 'user');
 
-sendBtn.onclick = ()=>{
-    const msg = inputBox.value.trim();
-    if(!msg) return;
-    addMsg(msg, true);
-    inputBox.value = "";
-    if(eventSource) eventSource.close();
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource(`/chat?content=${encodeURIComponent(text)}`);
+      let dom = addMsg('', 'ai');
 
-    if(msg.includes("加一条") || msg.includes("添加待办")){
-        showLog("触发本地工具：新增待办");
-        addTodo(msg);
-        addMsg("✅ 已添加待办：" + msg);
-        return;
-    }
-    if(msg.includes("查询我的待办")){
-        showLog("触发本地工具：查询待办");
-        const list = getTodoList();
-        if(list.length === 0){
-            addMsg("📋 暂无待办事项");
-        }else{
-            let s = "📋 你的待办列表：\n";
-            list.forEach((item,i)=>{
-                s += `${i+1}. ${item.content}\n`
-            })
-            addMsg(s);
+      eventSource.onmessage = function (e) {
+        if (e.data === '[DONE]') {
+          eventSource.close();
+          return;
         }
-        return;
-    }
-    if(msg.includes("删除") && msg.includes("条待办")){
-        showLog("触发本地工具：删除待办");
-        const num = parseInt(msg.match(/\d+/)[0]) - 1;
-        delTodo(num);
-        addMsg("🗑️ 已删除第"+(num+1)+"条待办");
-        return;
+        dom.innerText += e.data;
+      }
     }
 
-    showLog("调用AI流式对话");
-    const aiDiv = addMsg("");
-    eventSource = new EventSource(`/chat?msg=${encodeURIComponent(msg)}`);
-    eventSource.onmessage = (e)=>{
-        const data = JSON.parse(e.data);
-        aiDiv.innerText += data.content;
-        chatBox.scrollTop = chatBox.scrollHeight;
+    stopBtn.onclick = function () {
+      if (eventSource) eventSource.close();
     }
-    eventSource.onerror = ()=>{
-        showLog("连接出错");
-        eventSource.close();
+
+    function addMsg(content, type) {
+      const div = document.createElement('div');
+      div.className = 'msg-item';
+      div.innerText = content;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
     }
-}
-stopBtn.onclick = ()=>{
-    if(eventSource) eventSource.close();
-}
-inputBox.onkeydown = (e)=>{
-    if(e.key==="Enter" && !e.shiftKey){
-        e.preventDefault();
-        sendBtn.click();
-    }
-}
-</script>
+  </script>
 </body>
 </html>
